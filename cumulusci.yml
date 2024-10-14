@@ -31,4 +31,5 @@ orgs:
             config_file: orgs/unmanaged.json
         qa:
             config_file: orgs/unmanaged.json
+            days: 15
 
