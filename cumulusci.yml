@@ -8,20 +8,9 @@ project:
     git:
         default_branch: 'main'
     source_format: sfdx
-    
+#    dependencies:
+#      - version_id: 04t6T000001tu5qQAA
       
-
-tasks:
-    run_tests:
-        options:
-            required_org_code_coverage_percent: 75
-    github_pull_request_snapshot:
-        options:
-            project_code: TR
-            snapshot_pr: True
-            snapshot_failure: True
-    
-
 orgs:
     scratch:
 
@@ -32,4 +21,135 @@ orgs:
         qa:
             config_file: orgs/unmanaged.json
             days: 30
+        trial:
+            config_file: orgs/trial.json
+            days: 30
 
+tasks:
+    run_tests:
+        options:
+            required_org_code_coverage_percent: 75
+    github_pull_request_snapshot:
+        options:
+            project_code: TR
+            snapshot_pr: True
+            snapshot_failure: True
+
+
+flows:
+    trial_setup:
+        steps:
+            3:
+                task: deploy
+                options:
+                    path: unpackaged/config/trial
+            4:
+                flow: dev_org
+            5:
+                task: assign_permission_sets
+                options:
+                    api_names: TaskRay_External_Standard_Access,TaskRay_Admin_Access
+            6:
+                task: add_page_layout_fields
+                options:
+                    api_names: "TASKRAY__Project__c-TASKRAY__Project Layout"
+                    fields:
+                      - api_name: Onboarding_Manager__c
+                        position:
+                          - relative: bottom
+                            section: 0
+                            column: last
+
+    install_setup:
+        steps:
+            3:
+                task: deploy
+                options:
+                    path: unpackaged/config/trial
+            4:
+                flow: dev_org
+            5:
+                task: assign_permission_sets
+                options:
+                    api_names: TaskRay_External_Standard_Access,TaskRay_Admin_Access
+            6:
+                task: add_page_layout_fields
+                options:
+                    api_names: "TASKRAY__Project__c-TASKRAY__Project Layout"
+                    fields:
+                      - api_name: Onboarding_Manager__c
+                        position:
+                          - relative: bottom
+                            section: 0
+                            column: last
+
+    install_setup_finserv:
+        steps:
+            3:
+                task: deploy
+                options:
+                    path: unpackaged/config/trial
+            4:
+                flow: dev_org
+            5:
+                task: assign_permission_sets
+                options:
+                    api_names: TaskRay_External_Standard_Access,TaskRay_Admin_Access
+            6:
+                task: add_page_layout_fields
+                options:
+                    api_names: "TASKRAY__Project__c-TASKRAY__Project Layout"
+                    fields:
+                      - api_name: Onboarding_Manager__c
+                        position:
+                          - relative: bottom
+                            section: 0
+                            column: last
+
+plans:
+    install:
+        slug: install
+        title: Install TaskRay
+        tier: primary
+        is_listed: True
+        preflight_message: "This will install TaskRay into your org."
+        post_install_message: "Thanks for installing TaskRay. Please visit (https://taskray.com) for more information."
+        error_message: "To get help with this error, go to [https://support.taskray.com/hc/en-us](https://support.taskray.com/hc/en-us)."
+        checks:
+            - when: "'.my.' not in org_config.instance_url"
+              action: error
+              message: "Please enable My Domain in your org prior to installing."
+            - when: "'TASKRAY_Customer' not in tasks.get_available_licenses()"
+              action: error
+              message: "TaskRay application requires custom TaskRay licenses. Please coordinate with your TaskRay account executive to be sure you have the correct licenses set up in your org."
+            - when: "not tasks.check_chatter_enabled()"
+              action: error
+              message: "TaskRay requires Chatter. Please enable Chatter in your org and try again."
+        steps:
+            1:
+                flow: install_setup
+
+    install_finserv:
+        slug: install-fin-serv
+        title: Install TaskRay for Fincial Services
+        tier: secondary
+        is_listed: True
+        preflight_message: "This will install TaskRay into your org tailored for Financial Services customers."
+        post_install_message: "Thanks for installing TaskRay. Please visit (https://taskray.com) for more information."
+        error_message: "To get help with this error, go to [https://support.taskray.com/hc/en-us](https://support.taskray.com/hc/en-us)."
+        checks:
+            - when: "'.my.' not in org_config.instance_url"
+              action: error
+              message: "Please enable My Domain in your org prior to installing."
+            - when: "'TASKRAY_Customer' not in tasks.get_available_licenses()"
+              action: error
+              message: "TaskRay application requires custom TaskRay licenses. Please coordinate with your TaskRay account executive to be sure you have the correct licenses set up in your org."
+            - when: "'Network' not in tasks.check_sobjects_available()"
+              action: error
+              message: "Please ensure that Salesforce Communities is available in your org prior to installing."
+            - when: "not tasks.check_chatter_enabled()"
+              action: error
+              message: "Grants Management requires Chatter. Please enable Chatter in your org and try again."
+        steps:
+            1:
+                flow: install_setup_finserv

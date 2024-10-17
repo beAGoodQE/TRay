@@ -1,5 +1,9 @@
-# TRay
-Enter a description for your project
+# TaskRay
+Using CumulusCI to automate the Trial Setup per https://support.taskray.com/hc/en-us/articles/115000173448-Trial-Setup
+
+# CumulusCI Setup
+'Enable Chatter [Admin]' handled by the scratch org definition file 'orgs/trial.json'
+Installs 04t4U000001E1cxQAC package id
 
 # Project Setup
 This project is preconfigured with D2X for a comprehensive Development-to-Delivery Experience including CI/CD using GitHub Actions and development environments using GitHub Codespaces.
